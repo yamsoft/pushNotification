@@ -116,6 +116,34 @@
         var uuidList = [];
         var database = firebase.database();
         var starCountRef = firebase.database().ref('/data/');
+        starCountRef.once('value', function(snapshot) {
+            allResults1 = snapshot.val();
+            for (var prop in allResults1) {
+                console.log("only once first call");
+                var pushData = '{ "tokens": [' + '"' + prop + '"'+ '], "profile": "test", "notification": { "message": "' + allResults1[prop].label + '" } }';
+                var d = new Date();
+                var n = d.getHours();
+                if(n == allResults1[prop].time) {
+                    console.log("making ajax call");
+                    $.ajax({
+                        url: 'https://api.ionic.io/push/notifications',
+                        headers: {
+                            'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4YjI2YmM1NS01N2FiLTRmN2UtYmEyNi1kMDYwNTQ4OGIxZTgifQ.KjqyYrL2-xnHKF-GeDC-u747VrjB_zXpod-awohq5fs',
+                            'Content-Type':'application/json'
+                        },
+                        method: 'POST',
+                        data: pushData,
+                        success: function(data){
+                            console.log('succes: '+data);
+                        },
+                        error: function(err) {
+                            console.log("ERROR");
+                        }
+                    });
+                }
+            }
+
+        });
         starCountRef.on('value', function(snapshot) {
             allResults1 = snapshot.val();
             console.log(allResults1);
@@ -144,7 +172,7 @@
                     });
                 }
             }
-        },10000)
+        },60000);
     }
     </script>
 </body>
