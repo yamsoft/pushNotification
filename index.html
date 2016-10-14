@@ -53,7 +53,7 @@
         var uuidList = [];
         var database = firebase.database();
         var starCountRef = firebase.database().ref('/data/');
-        starCountRef.on('value', function(snapshot) {
+        starCountRef.once('value', function(snapshot) {
             var allResults = snapshot.val();
             for (var prop in allResults) {
                 uuidList.push(prop);
@@ -88,7 +88,7 @@
         var uuidList = [];
         var database = firebase.database();
         var starCountRef = firebase.database().ref('/data/');
-        starCountRef.on('value', function(snapshot) {
+        starCountRef.once('value', function(snapshot) {
             var allResults = snapshot.val();
             for (var prop in allResults) {
                 var pushData = '{ "tokens": [' + '"' + prop + '"'+ '], "profile": "test", "notification": { "message": "' + allResults[prop].label + '" } }';
