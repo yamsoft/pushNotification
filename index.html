@@ -1,0 +1,151 @@
+<html>
+<head>
+    <title>
+
+    </title>
+</head>
+<body>
+    <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
+    <script>
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyBZkf3CNiP0iBVbWyG9nWWdUxRbAdcmm_w",
+        databaseURL: "https://pushnotsample-ed832.firebaseio.com"
+    };
+    firebase.initializeApp(config);
+    </script>
+    <script src="http://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <h1>Send Man</h1>
+    <input type="text" id="manuuid" />
+    <input type="text" id="manLabel" />
+    <input type="button" id="manSend" value="Send Now" onClick="manSend()" />
+    <br /><br />
+    <input type="text" id="allCommonMessage" />
+    <input type="button" id="fireSendAll" value="Send to All" onclick="firebaseSendAll()" />
+    <br /><br />
+    <h1>Respective messages</h1>
+    <input type="button" id="sendRespective" value="Send Respective" onclick="fireSendRespective()" />
+    <br /><br />
+    <h1>Continuous Sending</h1>
+    <input type="button" id="continuousSending" value="Send Continuously" onclick="fireSendContinuously()" />
+    <script>
+    var manSend = function() {
+        var uuid = document.getElementById("manuuid").value;
+        var label = document.getElementById("manLabel").value;
+        var pushData = '{ "tokens": ["' + uuid + '"], "profile": "test", "notification": { "message": "' + label + '" } }';
+        $.ajax({
+            url: 'https://api.ionic.io/push/notifications',
+            headers: {
+                'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4YjI2YmM1NS01N2FiLTRmN2UtYmEyNi1kMDYwNTQ4OGIxZTgifQ.KjqyYrL2-xnHKF-GeDC-u747VrjB_zXpod-awohq5fs',
+                'Content-Type':'application/json'
+            },
+            method: 'POST',
+            data: pushData,
+            success: function(data){
+                console.log('succes: '+data);
+            },
+            error: function(err) {
+                console.log("ERROR");
+            }
+        });
+    }
+    var firebaseSendAll = function() {
+        var uuidList = [];
+        var database = firebase.database();
+        var starCountRef = firebase.database().ref('/data/');
+        starCountRef.on('value', function(snapshot) {
+            var allResults = snapshot.val();
+            for (var prop in allResults) {
+                uuidList.push(prop);
+            }
+            var commonMessage = document.getElementById("allCommonMessage").value;
+            var pushData = '{ "tokens": [';
+            for(var i=0; i<uuidList.length; i++) {
+                pushData = pushData + '"' + uuidList[i] + '"';
+                if(i != uuidList.length-1) {
+                    pushData = pushData + ",";
+                }
+            }
+            var pushData = pushData + '], "profile": "test", "notification": { "message": "' + commonMessage + '" } }';
+            $.ajax({
+                url: 'https://api.ionic.io/push/notifications',
+                headers: {
+                    'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4YjI2YmM1NS01N2FiLTRmN2UtYmEyNi1kMDYwNTQ4OGIxZTgifQ.KjqyYrL2-xnHKF-GeDC-u747VrjB_zXpod-awohq5fs',
+                    'Content-Type':'application/json'
+                },
+                method: 'POST',
+                data: pushData,
+                success: function(data){
+                    console.log('succes: '+data);
+                },
+                error: function(err) {
+                    console.log("ERROR");
+                }
+            });
+        });
+    }
+    var fireSendRespective = function() {
+        var uuidList = [];
+        var database = firebase.database();
+        var starCountRef = firebase.database().ref('/data/');
+        starCountRef.on('value', function(snapshot) {
+            var allResults = snapshot.val();
+            for (var prop in allResults) {
+                var pushData = '{ "tokens": [' + '"' + prop + '"'+ '], "profile": "test", "notification": { "message": "' + allResults[prop].label + '" } }';
+                $.ajax({
+                    url: 'https://api.ionic.io/push/notifications',
+                    headers: {
+                        'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4YjI2YmM1NS01N2FiLTRmN2UtYmEyNi1kMDYwNTQ4OGIxZTgifQ.KjqyYrL2-xnHKF-GeDC-u747VrjB_zXpod-awohq5fs',
+                        'Content-Type':'application/json'
+                    },
+                    method: 'POST',
+                    data: pushData,
+                    success: function(data){
+                        console.log('succes: '+data);
+                    },
+                    error: function(err) {
+                        console.log("ERROR");
+                    }
+                });
+            }
+
+
+        });
+    }
+    var fireSendContinuously = function() {
+        var uuidList = [];
+        var database = firebase.database();
+        var starCountRef = firebase.database().ref('/data/');
+        starCountRef.on('value', function(snapshot) {
+            allResults1 = snapshot.val();
+            console.log(allResults1);
+        });
+        setInterval(function() {
+            for (var prop in allResults1) {
+                var pushData = '{ "tokens": [' + '"' + prop + '"'+ '], "profile": "test", "notification": { "message": "' + allResults1[prop].label + '" } }';
+                var d = new Date();
+                var n = d.getHours();
+                if(n == allResults1[prop].time) {
+                    console.log("making ajax call");
+                    $.ajax({
+                        url: 'https://api.ionic.io/push/notifications',
+                        headers: {
+                            'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4YjI2YmM1NS01N2FiLTRmN2UtYmEyNi1kMDYwNTQ4OGIxZTgifQ.KjqyYrL2-xnHKF-GeDC-u747VrjB_zXpod-awohq5fs',
+                            'Content-Type':'application/json'
+                        },
+                        method: 'POST',
+                        data: pushData,
+                        success: function(data){
+                            console.log('succes: '+data);
+                        },
+                        error: function(err) {
+                            console.log("ERROR");
+                        }
+                    });
+                }
+            }
+        },10000)
+    }
+    </script>
+</body>
+</html>
